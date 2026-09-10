@@ -1,50 +1,58 @@
 
 import 'dart:convert';
 
-CowDetailsResponse cowDetailsResponseFromJson(String str) => CowDetailsResponse.fromJson(json.decode(str));
+CowDetailsResponse cowDetailsResponseFromJson(dynamic str) {
+  if (str is Map<String, dynamic>) {
+    return CowDetailsResponse.fromJson(str);
+  }
+  if (str is String) {
+    return CowDetailsResponse.fromJson(json.decode(str));
+  }
+  return CowDetailsResponse.fromJson(json.decode(str.toString()));
+}
 
 String cowDetailsResponseToJson(CowDetailsResponse data) => json.encode(data.toJson());
 
 class CowDetailsResponse {
   final String status;
   final String message;
-  final CowDetails cowDetails;
+  final CowDetails? cowDetails;
 
   CowDetailsResponse({
     required this.status,
     required this.message,
-    required this.cowDetails,
+    this.cowDetails,
   });
 
   factory CowDetailsResponse.fromJson(Map<String, dynamic> json) => CowDetailsResponse(
-    status: json["status"],
-    message: json["message"],
-    cowDetails: CowDetails.fromJson(json["data"]),
+    status: json["status"] ?? '',
+    message: json["message"] ?? '',
+    cowDetails: json["data"] != null ? CowDetails.fromJson(json["data"]) : null,
   );
 
   Map<String, dynamic> toJson() => {
     "status": status,
     "message": message,
-    "CowDetails": cowDetails.toJson(),
+    "CowDetails": cowDetails?.toJson(),
   };
 }
 
 class CowDetails {
-  final FoundCow foundCow;
+  final FoundCow? foundCow;
   final String latestCalfdob;
 
   CowDetails({
-    required this.foundCow,
+    this.foundCow,
     required this.latestCalfdob,
   });
 
   factory CowDetails.fromJson(Map<String, dynamic> json) => CowDetails(
-    foundCow: FoundCow.fromJson(json["foundCOW"]),
-    latestCalfdob: json["latestCalfdob"],
+    foundCow: json["foundCOW"] != null ? FoundCow.fromJson(json["foundCOW"]) : null,
+    latestCalfdob: json["latestCalfdob"] ?? '',
   );
 
   Map<String, dynamic> toJson() => {
-    "foundCOW": foundCow.toJson(),
+    "foundCOW": foundCow?.toJson(),
     "latestCalfdob": latestCalfdob,
   };
 }
@@ -97,27 +105,29 @@ class FoundCow {
   });
 
   factory FoundCow.fromJson(Map<String, dynamic> json) => FoundCow(
-    breed: json["breed"]??'',
-    type: json["type"]??'',
-    shedId: json["shed_id"]??'',
-    tagId: json["tag_id"].toString(),
-    dob: json["dob"]??'',
-    calfName: json["calf_name"]??'',
-    isFemale: json["isFemale"]??false,
-    addedBy: json["addedBy"]??'',
-    calfWeight: json["calf_weight"]??0,
-    damId: json["dam_id"]??'',
-    damName: json["dam_name"]??'',
-    sairId: json["sair_id"]??'',
-    sairName: json["sair_name"]??'',
-    deliveryTime: json["delivery_time"]??'',
-    sendDiedDate: json["send_died_date"]??'',
-    purchaseDate: json["purchase_date"]??'',
-    remark: json["remark"]??'',
-    createdAt: json["createdAt"]??'',
-    updatedAt: json["updatedAt"]??'',
-    isDeleted: json["isDeleted"]??false,
-    id: json["id"]??'',
+    breed: json["breed"] ?? '',
+    type: json["type"] ?? '',
+    shedId: json["shed_id"] ?? '',
+    tagId: json["tag_id"]?.toString() ?? '',
+    dob: json["dob"] ?? '',
+    calfName: json["calf_name"] ?? '',
+    isFemale: json["isFemale"] ?? false,
+    addedBy: json["addedBy"] ?? '',
+    calfWeight: json["calf_weight"] is int
+        ? json["calf_weight"]
+        : int.tryParse(json["calf_weight"]?.toString() ?? '0') ?? 0,
+    damId: json["dam_id"] ?? '',
+    damName: json["dam_name"] ?? '',
+    sairId: json["sair_id"] ?? '',
+    sairName: json["sair_name"] ?? '',
+    deliveryTime: json["delivery_time"] ?? '',
+    sendDiedDate: json["send_died_date"] ?? '',
+    purchaseDate: json["purchase_date"] ?? '',
+    remark: json["remark"] ?? '',
+    createdAt: json["createdAt"] ?? '',
+    updatedAt: json["updatedAt"] ?? '',
+    isDeleted: json["isDeleted"] ?? false,
+    id: json["id"] ?? '',
   );
 
   Map<String, dynamic> toJson() => {

@@ -227,59 +227,81 @@ class CowDetailScreen extends GetView<CowsDetailScreenController> {
     }
   }
 
+  Widget _buildNoDataWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.info_outline,
+            size: 64,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            "NO DATA FOUND",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+              letterSpacing: 1.1,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "No record found for this cow.",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Obx(
-        () {
-          switch (controller.dataStatus.value) {
-            case DataStatus.loading:
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [Center(child: CircularProgressIndicator())],
-              );
-            case DataStatus.error:
-              return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [Center(child: Text("RECORD NOT FOUND"))]);
-            case DataStatus.done:
-              return Scaffold(
-                appBar: CustomAppBar(
-                  height: 60,
-                  centerTitle: true,
-                  leadingIconOnTap: () {
-                    Get.back();
-                  },
-                  leadingIcon: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                  ),
-                  title: '${controller.foundCow!.tagId} : ${controller.foundCow!.calfName}',
-                  styleType: Style.bgFillBluegray900,
-                  actions: [
-                  InkWell(
-                    onTap: () {
-                      Get.toNamed(
-                        AppRoutes.editCowDetailsScreen,
-                        arguments: {
-                          'tagId': controller.foundCow!.tagId,
-                        },
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: Image(
-                        image: AssetImage(ImageConstant.editIcon),
-                        height: 30,
-                        width: 30,
+        () => Scaffold(
+          appBar: CustomAppBar(
+            height: 60,
+            centerTitle: true,
+            leadingIconOnTap: () {
+              Get.back();
+            },
+            leadingIcon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            title: controller.dataStatus.value == DataStatus.done && controller.foundCow != null
+                ? '${controller.foundCow!.tagId} : ${controller.foundCow!.calfName}'
+                : 'Cow Details',
+            styleType: Style.bgFillBluegray900,
+            actions: controller.dataStatus.value == DataStatus.done && controller.foundCow != null
+                ? [
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(
+                          AppRoutes.editCowDetailsScreen,
+                          arguments: {
+                            'tagId': controller.foundCow!.tagId,
+                          },
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Image(
+                          image: AssetImage(ImageConstant.editIcon),
+                          height: 30,
+                          width: 30,
+                        ),
                       ),
                     ),
-                  ),
-                  InkWell(
+                    InkWell(
                       onTap: () async {
-                        // Open options dialog before preview or download
                         await _showPdfOptionsDialog();
                       },
                       child: const Padding(
@@ -287,9 +309,24 @@ class CowDetailScreen extends GetView<CowsDetailScreenController> {
                         child: Icon(Icons.picture_as_pdf, color: Colors.white, size: 30),
                       ),
                     ),
-                ],
-                ),
-                body: Column(
+                  ]
+                : null,
+          ),
+          body: () {
+            switch (controller.dataStatus.value) {
+              case DataStatus.loading:
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const [Center(child: CircularProgressIndicator())],
+                );
+              case DataStatus.error:
+                return _buildNoDataWidget();
+              case DataStatus.done:
+                if (controller.foundCow == null) {
+                  return _buildNoDataWidget();
+                }
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
@@ -631,10 +668,10 @@ class CowDetailScreen extends GetView<CowsDetailScreenController> {
                       ),
                     ),
                   ],
-                ),
-              );
-          }
-        },
+                );
+            }
+          }(),
+        ),
       ),
     );
   }

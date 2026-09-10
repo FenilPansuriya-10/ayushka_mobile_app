@@ -114,33 +114,44 @@ class CowsDetailScreenController extends GetxController {
   RxList<String> Gender = ['Female', 'Male'].obs;
 
   int calculateAgeFromString(String birthdateString) {
-    DateTime birthdate = DateTime.parse(birthdateString);
+    if (birthdateString.isEmpty) return 0;
+    try {
+      DateTime birthdate = DateTime.parse(birthdateString);
 
-    final now = DateTime.now();
-    int age = now.year - birthdate.year;
+      final now = DateTime.now();
+      int age = now.year - birthdate.year;
 
-    if (now.month < birthdate.month ||
-        (now.month == birthdate.month && now.day < birthdate.day)) {
-      age--;
+      if (now.month < birthdate.month ||
+          (now.month == birthdate.month && now.day < birthdate.day)) {
+        age--;
+      }
+
+      return age;
+    } catch (e) {
+      return 0;
     }
-
-    return age;
   }
 
   String convertDateFormat({required String date}) {
-    DateTime inputDate = DateFormat("dd-MM-yyyy").parse(date);
-
-    String formattedDate = DateFormat("yyyy-MM-dd").format(inputDate);
-
-    return formattedDate;
+    if (date.isEmpty) return date;
+    try {
+      DateTime inputDate = DateFormat("dd-MM-yyyy").parse(date);
+      String formattedDate = DateFormat("yyyy-MM-dd").format(inputDate);
+      return formattedDate;
+    } catch (e) {
+      return date;
+    }
   }
 
   String CowDOBDateFormat({required String date}) {
-    DateTime inputDate = DateFormat("yyyy-MM-dd").parse(date);
-
-    String formattedDate = DateFormat("dd-MM-yyyy").format(inputDate);
-
-    return formattedDate;
+    if (date.isEmpty) return date;
+    try {
+      DateTime inputDate = DateFormat("yyyy-MM-dd").parse(date);
+      String formattedDate = DateFormat("dd-MM-yyyy").format(inputDate);
+      return formattedDate;
+    } catch (e) {
+      return date;
+    }
   }
 
   Future<void> medicineData({required String id}) async {
@@ -158,11 +169,12 @@ class CowsDetailScreenController extends GetxController {
         MedicineData.value = medicineHistoryByCowIdResponse.medicineHistoryData;
       } else {
         print(response.statusCode);
-        CattleToast.msg(response.statusMessage!);
+        if (response.statusMessage != null && response.statusMessage!.isNotEmpty) {
+          CattleToast.msg(response.statusMessage!);
+        }
       }
     } catch (error) {
       print(error);
-      CattleToast.msg(error.toString());
     }
   }
 
@@ -175,72 +187,73 @@ class CowsDetailScreenController extends GetxController {
       );
       if (response.statusCode == 200) {
         CowDetailsResponse cowDetailsResponse =
-            await cowDetailsResponseFromJson(response.data);
-        foundCow = cowDetailsResponse.cowDetails.foundCow;
-        breedController = TextEditingController(
-          text: foundCow!.breed,
-        );
-        genderController = TextEditingController(
-          text: foundCow!.isFemale == true ? "Female" : "Male",
-        );
-        calfIDController = TextEditingController(
-          text: foundCow!.tagId,
-        );
-        calfNameController = TextEditingController(
-          text: foundCow!.calfName,
-        );
-        dobController = TextEditingController(
-          text:CowDOBDateFormat(
-              date:foundCow!.dob) ,
-        );
-        dobText.value = dobController.text;
-        purchaseDateController = TextEditingController(
-          text: foundCow!.purchaseDate,
-        );
-        purchaseDateText.value = purchaseDateController.text;
-        sendDiedDateController = TextEditingController(
-          text: foundCow!.sendDiedDate,
-        );
-        timeController = TextEditingController(
-          text: foundCow!.deliveryTime,
-        );
-        cowTypeController = TextEditingController(
-          text: foundCow!.type,
-        );
-        damIdController = TextEditingController(
-          text: "${foundCow!.damId} - ${foundCow!.damName}",
-        );
-        sairIdController = TextEditingController(
-          text: "${foundCow!.sairId} - ${foundCow!.sairName}",
-        );
-        newShedIdController = TextEditingController(
-          text: foundCow!.shedId,
-        );
-        cowWeightController = TextEditingController(
-          text: "${foundCow!.calfWeight}",
-        );
-        remarkController = TextEditingController(
-          text: foundCow!.remark,
-        );
-        idController = TextEditingController(
-          text: foundCow!.id,
-        );
-        _changeStatus(DataStatus.done);
-        childrenHierarchyApi(cowId: id);
-        CattleToast.msg(cowDetailsResponse.message);
-        print(response.statusCode);
+            cowDetailsResponseFromJson(response.data);
+        if (cowDetailsResponse.cowDetails?.foundCow != null) {
+          foundCow = cowDetailsResponse.cowDetails!.foundCow;
+          breedController = TextEditingController(
+            text: foundCow!.breed,
+          );
+          genderController = TextEditingController(
+            text: foundCow!.isFemale == true ? "Female" : "Male",
+          );
+          calfIDController = TextEditingController(
+            text: foundCow!.tagId,
+          );
+          calfNameController = TextEditingController(
+            text: foundCow!.calfName,
+          );
+          dobController = TextEditingController(
+            text: CowDOBDateFormat(date: foundCow!.dob),
+          );
+          dobText.value = dobController.text;
+          purchaseDateController = TextEditingController(
+            text: foundCow!.purchaseDate,
+          );
+          purchaseDateText.value = purchaseDateController.text;
+          sendDiedDateController = TextEditingController(
+            text: foundCow!.sendDiedDate,
+          );
+          timeController = TextEditingController(
+            text: foundCow!.deliveryTime,
+          );
+          cowTypeController = TextEditingController(
+            text: foundCow!.type,
+          );
+          damIdController = TextEditingController(
+            text: "${foundCow!.damId} - ${foundCow!.damName}",
+          );
+          sairIdController = TextEditingController(
+            text: "${foundCow!.sairId} - ${foundCow!.sairName}",
+          );
+          newShedIdController = TextEditingController(
+            text: foundCow!.shedId,
+          );
+          cowWeightController = TextEditingController(
+            text: "${foundCow!.calfWeight}",
+          );
+          remarkController = TextEditingController(
+            text: foundCow!.remark,
+          );
+          idController = TextEditingController(
+            text: foundCow!.id,
+          );
+          _changeStatus(DataStatus.done);
+          childrenHierarchyApi(cowId: id);
+          if (cowDetailsResponse.message.isNotEmpty) {
+            CattleToast.msg(cowDetailsResponse.message);
+          }
+        } else {
+          _changeStatus(DataStatus.error);
+        }
       } else {
-        print("*******************statusCode***********************");
-        print(response.statusCode);
-        CattleToast.msg(response.statusMessage!);
-        print("*******************statusCode***********************");
+        if (response.statusMessage != null && response.statusMessage!.isNotEmpty) {
+          CattleToast.msg(response.statusMessage!);
+        }
         _changeStatus(DataStatus.error);
       }
     } catch (error) {
       print("******************Catch**ERROR**********************");
       print(error.toString());
-      CattleToast.msg(error.toString());
-      print("********************ERROR**********************");
       _changeStatus(DataStatus.error);
     }
     return;

@@ -72,13 +72,15 @@ class ShedTransferController extends GetxController {
       );
       AppLoader().hide();
       if (response.statusCode == 200) {
-        CowDetailsResponse cowDetailsResponse = await cowDetailsResponseFromJson(response.data);
-        foundCow = cowDetailsResponse.cowDetails.foundCow;
-        oldShedController = TextEditingController(text: "${foundCow!.shedId}");
-        selectedOldShed.value = foundCow!.shedId;
-        cowTypeController = TextEditingController(text: "${foundCow!.type}");
-        selectedCowType.value = foundCow!.type;
-        showShed.value = true;
+        CowDetailsResponse cowDetailsResponse = cowDetailsResponseFromJson(response.data);
+        if (cowDetailsResponse.cowDetails?.foundCow != null) {
+          foundCow = cowDetailsResponse.cowDetails!.foundCow;
+          oldShedController = TextEditingController(text: "${foundCow!.shedId}");
+          selectedOldShed.value = foundCow!.shedId;
+          cowTypeController = TextEditingController(text: "${foundCow!.type}");
+          selectedCowType.value = foundCow!.type;
+          showShed.value = true;
+        }
         print(response.statusCode);
       } else {
         print("*******************statusCode***********************");

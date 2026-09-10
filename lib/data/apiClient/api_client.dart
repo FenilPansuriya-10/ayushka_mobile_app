@@ -7,7 +7,7 @@ class ApiClient extends GetConnect {
       // ? "https://api.gaushalaweb.com"
       ? "https://ayushkaapi.cygnux.in"
       // : "http://192.168.0.207:5050";
-      : "http://localhost:5050";
+      : "http://192.168.0.207:5050";
 
   static String getCowLastId = "$cmBaseUrl/device/api/v1/cow/getLastCowId?gaushala_id=";
   static String loginUrl = "$cmBaseUrl/device/auth/login";
