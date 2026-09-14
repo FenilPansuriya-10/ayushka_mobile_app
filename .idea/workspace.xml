@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b9eb9675-62f9-440e-b5a8-0e9e3c99acae" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/apiClient/api_client.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/apiClient/api_client.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/presentation/milk_screen/controller/milk_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/milk_screen/controller/milk_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/presentation/milk_screen/milk_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/milk_screen/milk_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/presentation/milk_screen/models/milk_report/milk_report_response.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/milk_screen/models/milk_report/milk_report_response.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,36 +72,5 @@
       <updated>1788430590290</updated>
     </task>
     <servers />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/presentation/milk_screen/controller/milk_controller.dart</url>
-          <line>193</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/presentation/milk_screen/controller/milk_controller.dart</url>
-          <line>194</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/presentation/milk_screen/controller/milk_controller.dart</url>
-          <line>195</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/presentation/milk_screen/controller/milk_controller.dart</url>
-          <line>196</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/presentation/milk_screen/controller/milk_controller.dart</url>
-          <line>197</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

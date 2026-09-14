@@ -1,6 +1,6 @@
 import 'package:cattle_app/core/app_export.dart';
 
-bool isLive = false;
+bool isLive = true;
 
 class ApiClient extends GetConnect {
   static String cmBaseUrl = isLive
