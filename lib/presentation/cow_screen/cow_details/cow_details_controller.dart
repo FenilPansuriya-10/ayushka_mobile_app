@@ -1,31 +1,31 @@
 import 'dart:convert';
 
 import 'package:cattle_app/presentation/common%20file/defaultVariablesList.dart';
-import 'package:cattle_app/presentation/cow_screen/cow_details/model/edit_Cow_Details_models/edit_cow_details_request.dart';
-import 'package:cattle_app/presentation/cow_screen/cow_details/model/edit_cow_details_models/edit_cow_details_response.dart';
-import 'package:cattle_app/presentation/milk_screen/controller/milk_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart' hide Response, Node;
-import 'package:dio/dio.dart';
-import 'package:graphview/GraphView.dart';
+import 'package:cattle_app/presentation/cow_screen/cow_controller.dart';
 import 'package:cattle_app/presentation/cow_screen/cow_details/model/Milk_Information/Milk_Information_Request.dart';
 import 'package:cattle_app/presentation/cow_screen/cow_details/model/Milk_Information/Milk_Information_Respons.dart';
 import 'package:cattle_app/presentation/cow_screen/cow_details/model/cow_details_request.dart';
-
 import 'package:cattle_app/presentation/cow_screen/cow_details/model/cow_details_response.dart';
+import 'package:cattle_app/presentation/cow_screen/cow_details/model/edit_Cow_Details_models/edit_cow_details_request.dart';
+import 'package:cattle_app/presentation/cow_screen/cow_details/model/edit_cow_details_models/edit_cow_details_response.dart';
+import 'package:cattle_app/presentation/milk_screen/controller/milk_controller.dart';
 import 'package:cattle_app/widgets/toast_message/toast_message.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart' hide Response, Node;
+import 'package:graphview/GraphView.dart';
 import 'package:intl/intl.dart';
+
 import '../../../core/utils/pref_utils.dart';
 import '../../../data/apiClient/api_client.dart';
 import '../../../data/apiClient/api_methods.dart';
-
 import '../../medical_report_screen/models/medicine_History_ByCowID_Request.dart';
 import '../../medical_report_screen/models/medicine_History_ByCowID_Response.dart';
+import 'model/cow_family_hierarchy_model/children_hierarchy_response.dart';
 import 'model/cow_family_hierarchy_model/cow_Hierarchy_request.dart';
 import 'model/cow_family_hierarchy_model/cow_Hierarchy_response.dart';
 import 'model/cow_family_hierarchy_model/graph_model.dart';
-import 'model/cow_family_hierarchy_model/children_hierarchy_response.dart';
-import 'package:cattle_app/presentation/cow_screen/cow_controller.dart';
+
 enum DataStatus { loading, done, error }
 
 enum CowHierarchyDataStatus { loading, done, error }
@@ -39,10 +39,8 @@ class CowsDetailScreenController extends GetxController {
   RxList<MedicineHistoryDatum> MedicineData = <MedicineHistoryDatum>[].obs;
   RxString dobText = ''.obs;
   RxString purchaseDateText = ''.obs;
-  Rx<CowHierarchyDataStatus> cowHierarchyStatus =
-      CowHierarchyDataStatus.loading.obs;
-  Rx<CowHierarchyDataStatus> childrenHierarchyStatus =
-      CowHierarchyDataStatus.loading.obs;
+  Rx<CowHierarchyDataStatus> cowHierarchyStatus = CowHierarchyDataStatus.loading.obs;
+  Rx<CowHierarchyDataStatus> childrenHierarchyStatus = CowHierarchyDataStatus.loading.obs;
   Rx<MilkInfoStatus> milkInfoStatus = MilkInfoStatus.loading.obs;
   late CowHierarchyResponse? cowHierarchyResponse;
   late ChildrenHierarchyResponse? childrenHierarchyResponse;
@@ -68,11 +66,13 @@ class CowsDetailScreenController extends GetxController {
 
   @override
   void onInit() {
-    retrieveCowData();
-    CowsDetail(id: argument['tagId'].toString());
-    MilkInfoDetail(id: argument['tagId'].toString());
-    medicineData(id: argument['tagId'].toString());
-    cowHierarchyApi(cowId: argument['tagId'].toString());
+    () async {
+      retrieveCowData();
+      await cowsDetail(id: argument['tagId'].toString());
+      await milkInfoDetail(id: argument['tagId'].toString());
+      await medicineData(id: argument['tagId'].toString());
+      await cowHierarchyApi(cowId: argument['tagId'].toString());
+    }();
     super.onInit();
   }
 
@@ -119,8 +119,7 @@ class CowsDetailScreenController extends GetxController {
     final now = DateTime.now();
     int age = now.year - birthdate.year;
 
-    if (now.month < birthdate.month ||
-        (now.month == birthdate.month && now.day < birthdate.day)) {
+    if (now.month < birthdate.month || (now.month == birthdate.month && now.day < birthdate.day)) {
       age--;
     }
 
@@ -146,15 +145,12 @@ class CowsDetailScreenController extends GetxController {
   Future<void> medicineData({required String id}) async {
     final Response response = await WebService.cmPostWithTokenRequest(
       url: ApiClient.medicineByCowId,
-      body: medicineHistoryByCowIdRequestToJson(
-        MedicineHistoryByCowIdRequest(cowId: id),
-      ),
+      body: medicineHistoryByCowIdRequestToJson(MedicineHistoryByCowIdRequest(cowId: id)),
       token: PrefUtils.getToken.toString(),
     );
     try {
       if (response.statusCode == 200) {
-        MedicineHistoryByCowIdResponse medicineHistoryByCowIdResponse =
-            medicineHistoryByCowIdResponseFromJson(response.data);
+        MedicineHistoryByCowIdResponse medicineHistoryByCowIdResponse = medicineHistoryByCowIdResponseFromJson(response.data);
         MedicineData.value = medicineHistoryByCowIdResponse.medicineHistoryData;
       } else {
         print(response.statusCode);
@@ -166,7 +162,7 @@ class CowsDetailScreenController extends GetxController {
     }
   }
 
-  Future<void> CowsDetail({required String id}) async {
+  Future<void> cowsDetail({required String id}) async {
     try {
       final Response response = await WebService.cmPostWithTokenRequest(
         url: ApiClient.cowDetail,
@@ -174,57 +170,25 @@ class CowsDetailScreenController extends GetxController {
         token: PrefUtils.getToken.toString(),
       );
       if (response.statusCode == 200) {
-        CowDetailsResponse cowDetailsResponse =
-            await cowDetailsResponseFromJson(response.data);
+        CowDetailsResponse cowDetailsResponse = await cowDetailsResponseFromJson(response.data);
         foundCow = cowDetailsResponse.cowDetails.foundCow;
-        breedController = TextEditingController(
-          text: foundCow!.breed,
-        );
-        genderController = TextEditingController(
-          text: foundCow!.isFemale == true ? "Female" : "Male",
-        );
-        calfIDController = TextEditingController(
-          text: foundCow!.tagId,
-        );
-        calfNameController = TextEditingController(
-          text: foundCow!.calfName,
-        );
-        dobController = TextEditingController(
-          text:CowDOBDateFormat(
-              date:foundCow!.dob) ,
-        );
+        breedController = TextEditingController(text: foundCow!.breed);
+        genderController = TextEditingController(text: foundCow!.isFemale == true ? "Female" : "Male");
+        calfIDController = TextEditingController(text: foundCow!.tagId);
+        calfNameController = TextEditingController(text: foundCow!.calfName);
+        dobController = TextEditingController(text: CowDOBDateFormat(date: foundCow!.dob));
         dobText.value = dobController.text;
-        purchaseDateController = TextEditingController(
-          text: foundCow!.purchaseDate,
-        );
+        purchaseDateController = TextEditingController(text: foundCow!.purchaseDate);
         purchaseDateText.value = purchaseDateController.text;
-        sendDiedDateController = TextEditingController(
-          text: foundCow!.sendDiedDate,
-        );
-        timeController = TextEditingController(
-          text: foundCow!.deliveryTime,
-        );
-        cowTypeController = TextEditingController(
-          text: foundCow!.type,
-        );
-        damIdController = TextEditingController(
-          text: "${foundCow!.damId} - ${foundCow!.damName}",
-        );
-        sairIdController = TextEditingController(
-          text: "${foundCow!.sairId} - ${foundCow!.sairName}",
-        );
-        newShedIdController = TextEditingController(
-          text: foundCow!.shedId,
-        );
-        cowWeightController = TextEditingController(
-          text: "${foundCow!.calfWeight}",
-        );
-        remarkController = TextEditingController(
-          text: foundCow!.remark,
-        );
-        idController = TextEditingController(
-          text: foundCow!.id,
-        );
+        sendDiedDateController = TextEditingController(text: foundCow!.sendDiedDate);
+        timeController = TextEditingController(text: foundCow!.deliveryTime);
+        cowTypeController = TextEditingController(text: foundCow!.type);
+        damIdController = TextEditingController(text: "${foundCow!.damId} - ${foundCow!.damName}");
+        sairIdController = TextEditingController(text: "${foundCow!.sairId} - ${foundCow!.sairName}");
+        newShedIdController = TextEditingController(text: foundCow!.shedId);
+        cowWeightController = TextEditingController(text: "${foundCow!.calfWeight}");
+        remarkController = TextEditingController(text: foundCow!.remark);
+        idController = TextEditingController(text: foundCow!.id);
         _changeStatus(DataStatus.done);
         childrenHierarchyApi(cowId: id);
         CattleToast.msg(cowDetailsResponse.message);
@@ -267,7 +231,7 @@ class CowsDetailScreenController extends GetxController {
     return id;
   }
 
-  Future<void> EditCowsDetail() async {
+  Future<void> editCowsDetail() async {
     try {
       final Response response = await WebService.cmPostWithTokenRequest(
         url: "${ApiClient.editCowDetail}/${idController.text}",
@@ -292,8 +256,7 @@ class CowsDetailScreenController extends GetxController {
         token: PrefUtils.getToken.toString(),
       );
       if (response.statusCode == 200) {
-        EditCowDetailsResponse editCowDetailsResponse =
-            await editCowDetailsResponseFromJson(response.data);
+        EditCowDetailsResponse editCowDetailsResponse = await editCowDetailsResponseFromJson(response.data);
         await milkController.cmCowList();
         if (Get.isRegistered<CowsScreenController>()) {
           Get.find<CowsScreenController>().getData();
@@ -303,21 +266,21 @@ class CowsDetailScreenController extends GetxController {
         CattleToast.msg(editCowDetailsResponse.message);
         print(response.statusCode);
       } else {
-        print("*******************statusCode***********************");
-        print(response.statusCode);
+        debugPrint("*******************statusCode***********************");
+        debugPrint(response.statusCode.toString());
         CattleToast.msg(response.statusMessage!);
-        print("*******************statusCode***********************");
+        debugPrint("*******************statusCode***********************");
       }
     } catch (error) {
-      print("******************Catch**ERROR**********************");
+      debugPrint("******************Catch**ERROR**********************");
       print(error.toString());
       CattleToast.msg(error.toString());
-      print("********************ERROR**********************");
+      debugPrint("********************ERROR**********************");
     }
     return;
   }
 
-  Future<void> MilkInfoDetail({required String id}) async {
+  Future<void> milkInfoDetail({required String id}) async {
     changeMilkInfoStatus(MilkInfoStatus.loading);
     try {
       final Response response = await WebService.cmPostWithTokenRequest(
@@ -326,14 +289,10 @@ class CowsDetailScreenController extends GetxController {
         token: PrefUtils.getToken.toString(),
       );
       if (response.statusCode == 200) {
-        MilkInformationRespons milkInformationRespons =
-            await milkInformationResponsFromJson(response.data);
-        totalMilk.value =
-            milkInformationRespons.milkInfoData.totalMilk.toDouble();
-        lastYearTotalMilk.value =
-            milkInformationRespons.milkInfoData.lastYearTotalMilk.toDouble();
-        currentYearTotalMilk.value =
-            milkInformationRespons.milkInfoData.currentYearTotalMilk.toDouble();
+        MilkInformationRespons milkInformationRespons = await milkInformationResponsFromJson(response.data);
+        totalMilk.value = milkInformationRespons.milkInfoData.totalMilk.toDouble();
+        lastYearTotalMilk.value = milkInformationRespons.milkInfoData.lastYearTotalMilk.toDouble();
+        currentYearTotalMilk.value = milkInformationRespons.milkInfoData.currentYearTotalMilk.toDouble();
         changeMilkInfoStatus(MilkInfoStatus.done);
 
         print(response.statusCode);
@@ -363,9 +322,7 @@ class CowsDetailScreenController extends GetxController {
 
     final response = await WebService.cmPostWithTokenRequest(
       url: ApiClient.cowHierarchy,
-      body: cowHierarchyRequestToJson(
-        CowHierarchyRequest(tagId: cowId),
-      ),
+      body: cowHierarchyRequestToJson(CowHierarchyRequest(tagId: cowId)),
       token: PrefUtils.getToken.toString(),
     );
 
@@ -404,28 +361,15 @@ class CowsDetailScreenController extends GetxController {
           breed: cowHierarchyResponse!.cowData.breed,
         ),
       );
-      addParentsToGraph(
-        cowHierarchyResponse!.cowData.parentsList,
-        cowHierarchyResponse!.cowData.cowId,
-      );
+      addParentsToGraph(cowHierarchyResponse!.cowData.parentsList, cowHierarchyResponse!.cowData.cowId);
     }
   }
 
   void addParentsToGraph(List<CowData> parents, String parentNode) {
     for (var parent in parents) {
       String parentCowNode = parent.cowId;
-      nodes.add(
-        NodeModel(
-          id: parentCowNode,
-          label: parent.calfName,
-          gender: parent.gender,
-          type: parent.type,
-          breed: parent.breed,
-        ),
-      );
-      edgesList.add(
-        EdgeModel(from: parentNode, to: parentCowNode),
-      );
+      nodes.add(NodeModel(id: parentCowNode, label: parent.calfName, gender: parent.gender, type: parent.type, breed: parent.breed));
+      edgesList.add(EdgeModel(from: parentNode, to: parentCowNode));
       if (parent.parentsList.isNotEmpty) {
         addParentsToGraph(parent.parentsList, parentCowNode);
       }
@@ -433,11 +377,9 @@ class CowsDetailScreenController extends GetxController {
   }
 
   chatDataAdd() {
-    print(
-        "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(jsonEncode(nodes));
-    print(
-        "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(jsonEncode(edgesList));
     var edges = edgesList;
     edges.forEach((element) {
@@ -461,9 +403,7 @@ class CowsDetailScreenController extends GetxController {
 
     final response = await WebService.cmPostWithTokenRequest(
       url: ApiClient.getChildrenDetails,
-      body: cowHierarchyRequestToJson(
-        CowHierarchyRequest(tagId: cowId),
-      ),
+      body: cowHierarchyRequestToJson(CowHierarchyRequest(tagId: cowId)),
       token: PrefUtils.getToken.toString(),
     );
 
@@ -497,29 +437,16 @@ class CowsDetailScreenController extends GetxController {
           breed: foundCow!.breed,
         ),
       );
-      addChildrenToGraph(
-        childrenHierarchyResponse!.childrenData,
-        foundCow!.tagId,
-      );
+      addChildrenToGraph(childrenHierarchyResponse!.childrenData, foundCow!.tagId);
     }
   }
 
   void addChildrenToGraph(List<CowData> children, String parentNode) {
     for (var child in children) {
       String childNodeId = child.cowId.toString();
-      childrenNodes.add(
-        NodeModel(
-          id: childNodeId,
-          label: child.calfName,
-          gender: child.gender,
-          type: child.type,
-          breed: child.breed,
-        ),
-      );
-      childrenEdgesList.add(
-        EdgeModel(from: parentNode, to: childNodeId),
-      );
-      // We do NOT recurse into child.parentsList because those are the parents 
+      childrenNodes.add(NodeModel(id: childNodeId, label: child.calfName, gender: child.gender, type: child.type, breed: child.breed));
+      childrenEdgesList.add(EdgeModel(from: parentNode, to: childNodeId));
+      // We do NOT recurse into child.parentsList because those are the parents
       // of the child (which includes the current parentNode), creating a cycle!
     }
   }

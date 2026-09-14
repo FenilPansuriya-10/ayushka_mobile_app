@@ -1,13 +1,13 @@
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart' hide Response;
-import 'package:intl/intl.dart';
 import 'package:cattle_app/presentation/add_milk_screen/models/add_Bulk_Milk_Request.dart';
 import 'package:cattle_app/presentation/add_milk_screen/models/add_Bulk_Milk_Response.dart';
 import 'package:cattle_app/presentation/add_milk_screen/models/addmilk_request.dart';
 import 'package:cattle_app/presentation/add_milk_screen/models/validate_Milk_Request.dart';
 import 'package:cattle_app/presentation/add_milk_screen/models/validate_Milk_Response.dart';
 import 'package:cattle_app/widgets/toast_message/toast_message.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart' hide Response;
+import 'package:intl/intl.dart';
 
 import '../../../core/utils/pref_utils.dart';
 import '../../../data/apiClient/api_client.dart';
@@ -26,7 +26,7 @@ class AddMilkController extends GetxController {
 
   Rx<DataStatus> dataStatus = DataStatus.loading.obs;
 
-  Map<String, dynamic> args = Get.arguments ??{};
+  Map<String, dynamic> args = Get.arguments ?? {};
 
   FocusNode searchFocus = FocusNode();
   FocusNode addMilkFocus = FocusNode();
@@ -79,28 +79,29 @@ class AddMilkController extends GetxController {
   GlobalKey<FormState> literKey = GlobalKey<FormState>();
 
   AddMilkController() {
-    cowName.value = milkController.cowList[args['index']].calfName;
-    cowId.value = milkController.cowList[args['index']].tagId;
-    cowType.value = milkController.cowList[args['index']].type;
-    shedId.value = milkController.cowList[args['index']].shedId;
-    searchNameController = TextEditingController(
-      text: "${milkController.cowList[args['index']].calfName}",
-    );
-    searchIdController = TextEditingController(
-      text: "${milkController.cowList[args['index']].tagId}",
-    );
+    if (args['index'] != null && milkController.cowList.isNotEmpty && args['index'] < milkController.cowList.length) {
+      int index = args['index'];
+      cowName.value = milkController.cowList[index].calfName;
+      cowId.value = milkController.cowList[index].tagId;
+      cowType.value = milkController.cowList[index].type;
+      shedId.value = milkController.cowList[index].shedId;
+      searchNameController = TextEditingController(text: milkController.cowList[index].calfName);
+      searchIdController = TextEditingController(text: milkController.cowList[index].tagId);
+    } else {
+      searchNameController = TextEditingController();
+      searchIdController = TextEditingController();
+    }
+
     for (var data in milkController.cowList) {
-      itemList.add(Item(
-        id: data.tagId,
-        name: data.calfName,
-        type: data.type,
-      ));
+      itemList.add(Item(id: data.tagId, name: data.calfName, type: data.type));
     }
   }
 
   @override
   void onInit() {
-    MilkHistory(id: args['tagId'].toString());
+    if (args['tagId'] != null) {
+      MilkHistory(id: args['tagId'].toString());
+    }
     getEmployeeList();
     super.onInit();
   }
@@ -192,8 +193,7 @@ class AddMilkController extends GetxController {
     return isMilkDoneMorning() || isMilkDoneEve();
   }
 
-  String convertDateFormat({required  String date}) {
-
+  String convertDateFormat({required String date}) {
     DateTime inputDate = DateFormat("dd-MM-yyyy").parse(date);
 
     String formattedDate = DateFormat("yyyy-MM-dd").format(inputDate);
@@ -201,7 +201,7 @@ class AddMilkController extends GetxController {
     return formattedDate;
   }
 
-  AddMilkApi(BuildContext context) async {
+  Future<void> AddMilkApi(BuildContext context) async {
     if (selectedEmployee.value == null) {
       CattleToast.msg("Please select an employee");
       return;
@@ -237,7 +237,7 @@ class AddMilkController extends GetxController {
       }
     } catch (error) {
       AppLoader().hide();
-      CattleToast.msg( addMilkResponse.message);
+      CattleToast.msg(addMilkResponse.message);
       print("******************Catch**ERROR**********************");
       print(error.toString());
       print("********************ERROR**********************");
@@ -249,14 +249,16 @@ class AddMilkController extends GetxController {
     todayEveningMilkCount.value = "";
     dayTimes.value = '';
     cowsLastMilkLiter.value = '';
-    Response response =
-        await WebService.cmGetRequestWithToken( url: '${ApiClient.cowMilkHistory}/${id}', body: '', token: PrefUtils.getToken.toString(),);
+    Response response = await WebService.cmGetRequestWithToken(
+      url: '${ApiClient.cowMilkHistory}/${id}',
+      body: '',
+      token: PrefUtils.getToken.toString(),
+    );
     print(response.data);
     print(response.statusCode);
     try {
       if (response.statusCode == 200) {
-        AddMilkHistoryResponse addMilkHistoryResponse =
-            await addMilkHistoryResponseFromJson(response.data);
+        AddMilkHistoryResponse addMilkHistoryResponse = await addMilkHistoryResponseFromJson(response.data);
         todayMilkFiltered = addMilkHistoryResponse.milkdata.todayMilkFiltered;
         milkData = addMilkHistoryResponse.milkdata;
         todayMorningMilkCount.value = milkData!.todayMorningMilkCount;
@@ -289,17 +291,13 @@ class AddMilkController extends GetxController {
     AppLoader().show();
     Response response = await WebService.cmPostWithTokenRequest(
       url: ApiClient.bulkMilk,
-      body: addBulkMilkRequestToJson(
-        AddBulkMilkRequest(
-          data: BulkMilk,
-        ),
-      ), token:  PrefUtils.getToken.toString(),
+      body: addBulkMilkRequestToJson(AddBulkMilkRequest(data: BulkMilk)),
+      token: PrefUtils.getToken.toString(),
     );
     AppLoader().hide();
     try {
       if (response.statusCode == 200) {
-        AddBulkMilkResponse addBulkMilkResponse =
-            addBulkMilkResponseFromJson(response.data);
+        AddBulkMilkResponse addBulkMilkResponse = addBulkMilkResponseFromJson(response.data);
         CattleToast.msg(addBulkMilkResponse.message);
         BulkMilk.clear();
         remarkController.clear();
@@ -322,7 +320,7 @@ class AddMilkController extends GetxController {
   String CowTageId({required String id}) {
     List<String> parts = id.split(' : ');
     String? desiredOutput;
-      return desiredOutput = "${parts[0]}";
+    return desiredOutput = "${parts[0]}";
   }
 
   Future<void> ValidateMilk(BuildContext context) async {
@@ -336,27 +334,23 @@ class AddMilkController extends GetxController {
       url: ApiClient.validateMilk,
       body: validateMilkRequestToJson(
         ValidateMilkRequest(
-            cowTagId: CowTageId(id: selectedCowId.value),
-            date: DateController.text.isEmpty
-                ? DateFormat('yyyy-MM-dd').format(DateTime.now())
-                : convertDateFormat(date: DateController.text),
-            dayTime: selectedTime.value),
+          cowTagId: CowTageId(id: selectedCowId.value),
+          date: DateController.text.isEmpty ? DateFormat('yyyy-MM-dd').format(DateTime.now()) : convertDateFormat(date: DateController.text),
+          dayTime: selectedTime.value,
+        ),
       ),
       token: PrefUtils.getToken.toString(),
     );
     AppLoader().hide();
     try {
       if (response.statusCode == 200) {
-        ValidateMilkResponse validateMilkResponse =
-            validateMilkResponseFromJson(response.data);
+        ValidateMilkResponse validateMilkResponse = validateMilkResponseFromJson(response.data);
         if (validateMilkResponse.validateMilkData.isValid == true) {
           BulkMilk.add(
             bulkMIlkData(
               cowTagId: CowTageId(id: selectedCowId.value),
-              liter: double.parse(LiterController.text),
-              date: DateController.text.isEmpty
-                  ? DateFormat('yyyy-MM-dd').format(DateTime.now())
-                  : convertDateFormat(date: DateController.text),
+              liter: double.tryParse(LiterController.text) ?? 0.0,
+              date: DateController.text.isEmpty ? DateFormat('yyyy-MM-dd').format(DateTime.now()) : convertDateFormat(date: DateController.text),
               dayTime: selectedTime.value,
               remark: "${selectedEmployee.value!.empId} - ${selectedEmployee.value!.payrollName}",
               empRemarks: remarkController.value.text,
@@ -395,5 +389,5 @@ class AddMilkController extends GetxController {
     return dayTimes.value;
   }
 
-  _changeStatus(DataStatus value) => dataStatus(value);
+  DataStatus _changeStatus(DataStatus value) => dataStatus(value);
 }

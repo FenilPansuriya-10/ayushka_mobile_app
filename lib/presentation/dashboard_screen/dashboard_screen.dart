@@ -575,7 +575,6 @@ class DashboardScreen extends StatelessWidget {
                                         image: 'assets/images/cow.png',
                                         onTap: () {
                                           moduleEnum = ModuleEnum.cowsScreen;
-                                          print(PrefUtils.getToken);
                                           Get.toNamed(AppRoutes.cowsScreen);
                                         },
                                         padding: 5,

@@ -1,9 +1,8 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:flutter/cupertino.dart';
+import 'package:cattle_app/core/app_export.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cattle_app/core/app_export.dart';
 
 class CustomTextFormField extends StatelessWidget {
   CustomTextFormField({
@@ -87,12 +86,7 @@ class CustomTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return alignment != null
-        ? Align(
-            alignment: alignment ?? Alignment.center,
-            child: _buildTextFormFieldWidget(),
-          )
-        : _buildTextFormFieldWidget();
+    return alignment != null ? Align(alignment: alignment ?? Alignment.center, child: _buildTextFormFieldWidget()) : _buildTextFormFieldWidget();
   }
 
   _buildTextFormFieldWidget() {
@@ -108,9 +102,9 @@ class CustomTextFormField extends StatelessWidget {
             onTap: onTap,
             controller: controller,
             focusNode: focusNode,
-            autofocus: autofocus!,
+            autofocus: autofocus ?? false,
             style: _setFontStyle(),
-            obscureText: isObscureText!,
+            obscureText: isObscureText ?? false,
             textInputAction: textInputAction,
             keyboardType: textInputType,
             maxLines: maxLines ?? 1,
@@ -147,12 +141,7 @@ class CustomTextFormField extends StatelessWidget {
   _setFontStyle() {
     switch (fontStyle) {
       default:
-        return TextStyle(
-          color: ColorConstant.blueGray9007f,
-          fontSize: getFontSize(20),
-          fontFamily: 'Outfit',
-          fontWeight: FontWeight.w500,
-        );
+        return TextStyle(color: ColorConstant.blueGray9007f, fontSize: getFontSize(20), fontFamily: 'Outfit', fontWeight: FontWeight.w500);
     }
   }
 
@@ -290,12 +279,7 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return alignment != null
-        ? Align(
-            alignment: alignment ?? Alignment.center,
-            child: _buildTextFormFieldWidget(),
-          )
-        : _buildTextFormFieldWidget();
+    return alignment != null ? Align(alignment: alignment ?? Alignment.center, child: _buildTextFormFieldWidget()) : _buildTextFormFieldWidget();
   }
 
   _buildTextFormFieldWidget() {
@@ -311,11 +295,8 @@ class CustomTextField extends StatelessWidget {
         child: Row(
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 10,),
-              child: Image(
-                image: AssetImage(image),
-                height: height,
-              ),
+              padding: const EdgeInsets.only(left: 10),
+              child: Image(image: AssetImage(image), height: height),
             ),
             Expanded(
               child: Form(
@@ -325,9 +306,9 @@ class CustomTextField extends StatelessWidget {
                   onTap: onTap,
                   controller: controller,
                   focusNode: focusNode,
-                  autofocus: autofocus!,
+                  autofocus: autofocus ?? false,
                   style: _setFontStyle(),
-                  obscureText: isObscureText!,
+                  obscureText: isObscureText ?? false,
                   textInputAction: textInputAction,
                   keyboardType: textInputType,
                   maxLines: maxLines ?? 1,
@@ -364,12 +345,7 @@ class CustomTextField extends StatelessWidget {
   _setFontStyle() {
     switch (fontStyle) {
       default:
-        return TextStyle(
-          color: ColorConstant.blueGray9007f,
-          fontSize: getFontSize(20),
-          fontFamily: 'Outfit',
-          fontWeight: FontWeight.w500,
-        );
+        return TextStyle(color: ColorConstant.blueGray9007f, fontSize: getFontSize(20), fontFamily: 'Outfit', fontWeight: FontWeight.w500);
     }
   }
 

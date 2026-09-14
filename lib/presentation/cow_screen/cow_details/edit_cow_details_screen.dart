@@ -1,9 +1,10 @@
+import 'package:cattle_app/core/app_export.dart';
 import 'package:cattle_app/presentation/cow_screen/cow_details/cow_details_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:time_picker_spinner_pop_up/time_picker_spinner_pop_up.dart';
-import 'package:cattle_app/core/app_export.dart';
+
 import '../../../widgets/app_bar/custom_app_bar.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_text_form_field.dart';
@@ -20,10 +21,7 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
         appBar: CustomAppBar(
           centerTitle: true,
           height: 60,
-          leadingIcon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
+          leadingIcon: const Icon(Icons.arrow_back, color: Colors.white),
           leadingIconOnTap: () {
             Get.back();
           },
@@ -38,15 +36,12 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                   Expanded(
                     child: Obx(
                       () => Dropdown(
-                        selectedItem:
-                            "${controller.breedController.text}"
-                                .obs,
+                        selectedItem: "${controller.breedController.text}".obs,
                         globalKey: controller.breedKey,
                         text: 'Breed  '.obs,
                         list: breed.map((data) => data.value).toList(),
                         onChanged: (value) async {
-                          controller.breedController.text =
-                              value.toString();
+                          controller.breedController.text = value.toString();
                         },
                         validator: (value) {
                           if (value == null) {
@@ -59,16 +54,13 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                   ),
                   Expanded(
                     child: Dropdown(
-                      selectedItem:
-                          "${controller.genderController.text}"
-                              .obs,
+                      selectedItem: "${controller.genderController.text}".obs,
                       globalKey: controller.genderKey,
                       text: 'Gender '.obs,
                       list: controller.Gender,
                       showSearchBox: false,
                       onChanged: (value) async {
-                        controller.genderController.text =
-                            value.toString();
+                        controller.genderController.text = value.toString();
                       },
                       validator: (value) {
                         if (value == null) {
@@ -117,15 +109,13 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                 children: [
                   Expanded(
                     child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 10, top: 20, right: 10),
+                      padding: const EdgeInsets.only(left: 10, top: 20, right: 10),
                       child: InkWell(
                         onTap: () {
                           onTapDOBDate(context: context);
                         },
                         child: Container(
-                          padding:
-                              const EdgeInsets.only(top: 10, left: 10, bottom: 10),
+                          padding: const EdgeInsets.only(top: 10, left: 10, bottom: 10),
                           height: 60,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
@@ -134,17 +124,14 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Obx(() => Text(
-                                controller.dobText.value.isEmpty
-                                    ? "Date of Birth"
-                                    : controller.dobText.value,
-                              )),
+                              Obx(() => Text(controller.dobText.value.isEmpty ? "Date of Birth" : controller.dobText.value)),
                               IconButton(
-                                  onPressed: () {
-                                    controller.dobController.clear();
-                                    controller.dobText.value = '';
-                                  },
-                                  icon: const Icon(Icons.cancel_outlined))
+                                onPressed: () {
+                                  controller.dobController.clear();
+                                  controller.dobText.value = '';
+                                },
+                                icon: const Icon(Icons.cancel_outlined),
+                              ),
                             ],
                           ),
                         ),
@@ -153,15 +140,13 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 10, top: 20, right: 10),
+                      padding: const EdgeInsets.only(left: 10, top: 20, right: 10),
                       child: InkWell(
                         onTap: () {
                           onTapPurchaseDate(context: context);
                         },
                         child: Container(
-                          padding:
-                              const EdgeInsets.only(top: 10, left: 10, bottom: 10),
+                          padding: const EdgeInsets.only(top: 10, left: 10, bottom: 10),
                           height: 60,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
@@ -170,17 +155,14 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Obx(() => Text(
-                                controller.purchaseDateText.value.isEmpty
-                                    ? 'Purchase Date'
-                                    : controller.purchaseDateText.value,
-                              )),
+                              Obx(() => Text(controller.purchaseDateText.value.isEmpty ? 'Purchase Date' : controller.purchaseDateText.value)),
                               IconButton(
-                                  onPressed: () {
-                                    controller.purchaseDateController.clear();
-                                    controller.purchaseDateText.value = '';
-                                  },
-                                  icon: const Icon(Icons.cancel_outlined))
+                                onPressed: () {
+                                  controller.purchaseDateController.clear();
+                                  controller.purchaseDateText.value = '';
+                                },
+                                icon: const Icon(Icons.cancel_outlined),
+                              ),
                             ],
                           ),
                         ),
@@ -190,28 +172,19 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.only(
-                  top: 10,
-                  left: 20,
-                  right: 20,
-                ),
+                padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
                 child: Row(
                   children: [
                     Text(
                       'Time : ',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: ColorConstant.blueGray9007f,
-                        fontSize: 17,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: ColorConstant.blueGray9007f, fontSize: 17),
                     ),
                     const Spacer(),
                     TimePickerSpinnerPopUp(
                       mode: CupertinoDatePickerMode.time,
                       initTime: DateTime.now(),
                       onChange: (dateTime) {
-                        controller.timeController.text =
-                            DateFormat('hh:mm:a').format(dateTime).toString();
+                        controller.timeController.text = DateFormat('hh:mm:a').format(dateTime).toString();
                       },
                     ),
                   ],
@@ -223,15 +196,12 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                     () => Column(
                       children: [
                         Dropdown(
-                          selectedItem:
-                              "${controller.cowTypeController.text}"
-                                  .obs,
+                          selectedItem: "${controller.cowTypeController.text}".obs,
                           globalKey: controller.cowTypeKey,
                           text: 'Cow Type '.obs,
                           list: cowType.map((data) => data.id).toList(),
                           onChanged: (value) async {
-                            controller.cowTypeController.text =
-                                value.toString();
+                            controller.cowTypeController.text = value.toString();
                           },
                           validator: (value) {
                             if (value == null) {
@@ -241,34 +211,25 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                           },
                         ),
                         Dropdown(
-                          selectedItem:
-                              "${controller.damIdController.text}"
-                                  .obs,
+                          selectedItem: "${controller.damIdController.text}".obs,
                           text: 'Dam ID  '.obs,
-                          list: controller
-                              .milkController.cowList
-                              .map((data) => data.tagId + ' - ' + data.calfName)
-                              .toList(),
+                          list: controller.milkController.cowList.map((data) => data.tagId + ' - ' + data.calfName).toList(),
                           onChanged: (value) async {
-                            controller.damIdController.text =
-                                value.toString();
+                            controller.damIdController.text = value.toString();
                           },
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
               Obx(
                 () => Dropdown(
-                  selectedItem:
-                      "${controller.sairIdController.text}".obs,
+                  selectedItem: "${controller.sairIdController.text}".obs,
                   text: 'Sair ID  '.obs,
-                  list:
-                      bull.map((data) => data.id + ' - ' + data.value).toList(),
+                  list: bull.map((data) => data.id + ' - ' + data.value).toList(),
                   onChanged: (value) async {
-                    controller.sairIdController.text =
-                        value.toString();
+                    controller.sairIdController.text = value.toString();
                   },
                 ),
               ),
@@ -277,15 +238,12 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                   Expanded(
                     child: Obx(
                       () => Dropdown(
-                        selectedItem:
-                            "${controller.newShedIdController.text}"
-                                .obs,
+                        selectedItem: "${controller.newShedIdController.text}".obs,
                         globalKey: controller.newShedIdKey,
                         text: 'New Shed Id  '.obs,
                         list: shed.map((data) => data.value).toList(),
                         onChanged: (value) async {
-                          controller.newShedIdController.text =
-                              value.toString();
+                          controller.newShedIdController.text = value.toString();
                         },
                         validator: (value) {
                           if (value == null) {
@@ -299,12 +257,10 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                   Expanded(
                     child: CustomTextFormField(
                       globalKey: controller.cowWeightKey,
-                      controller:
-                          controller.cowWeightController,
+                      controller: controller.cowWeightController,
                       hintText: "Calf Weight",
                       labelText: "Calf Weight",
-                      textInputType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      textInputType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Please Enter Calf Weight  ';
@@ -315,18 +271,14 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
                   ),
                 ],
               ),
-              CustomTextFormField(
-                hintText: 'Remark  ',
-                labelText: 'Remark  ',
-                controller: controller.remarkController,
-              ),
-              const SizedBox(height: 10)
+              CustomTextFormField(hintText: 'Remark  ', labelText: 'Remark  ', controller: controller.remarkController),
+              const SizedBox(height: 10),
             ],
           ),
         ),
         bottomNavigationBar: CustomButton(
           onTap: () {
-            controller.EditCowsDetail();
+            controller.editCowsDetail();
           },
           height: getVerticalSize(58),
           text: "lbl_done".tr,
@@ -348,8 +300,7 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
       initialDate: DateTime.now(),
     );
     if (pickedDate == null) return;
-    controller.dobController.text =
-        DateFormat('dd-MM-yyyy').format(pickedDate);
+    controller.dobController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
     controller.dobText.value = controller.dobController.text;
   }
 
@@ -361,8 +312,7 @@ class EditCowDetailsScreen extends GetView<CowsDetailScreenController> {
       initialDate: DateTime.now().add(const Duration(days: 1)),
     );
     if (pickedDate == null) return;
-    controller.purchaseDateController.text =
-        DateFormat('dd-MM-yyyy').format(pickedDate);
+    controller.purchaseDateController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
     controller.purchaseDateText.value = controller.purchaseDateController.text;
   }
 }

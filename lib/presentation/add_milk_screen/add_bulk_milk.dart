@@ -8,7 +8,6 @@ import '../../core/utils/color_constant.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_form_field.dart';
-import '../../widgets/dropdown/dropdown.dart';
 import '../../widgets/rich_text.dart';
 import '../cow_screen/Add_cow/add_cow_controller.dart';
 import '../dashboard_screen/controller/dashboard_controller.dart';
@@ -20,8 +19,8 @@ class AddBulkMilkScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DashboardController dashboardController = Get.put(DashboardController());
-    final AddMilkController controller = Get.put(AddMilkController());
+    final DashboardController dashboardController = Get.find<DashboardController>();
+    final AddMilkController controller = Get.find<AddMilkController>();
     final AddCowScreenController addCowScreenController = Get.put(AddCowScreenController());
 
     return WillPopScope(
@@ -41,10 +40,7 @@ class AddBulkMilkScreen extends StatelessWidget {
               Get.back();
               Get.back();
             },
-            leadingIcon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
+            leadingIcon: const Icon(Icons.arrow_back, color: Colors.white),
             title: 'Add Bulk Milk',
             styleType: Style.bgFillBluegray900,
             actions: [
@@ -58,10 +54,7 @@ class AddBulkMilkScreen extends StatelessWidget {
                       builder: (_) => WillPopScope(
                         onWillPop: () async => false,
                         child: AlertDialog(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(22.0)),
-                          ),
+                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(22.0))),
                           elevation: 0,
                           content: SingleChildScrollView(
                             physics: const BouncingScrollPhysics(),
@@ -75,8 +68,7 @@ class AddBulkMilkScreen extends StatelessWidget {
                                   child: const CircleAvatar(
                                     backgroundColor: Colors.black26,
                                     radius: 15,
-                                    child: Icon(Icons.close,
-                                        color: Colors.black, size: 20),
+                                    child: Icon(Icons.close, color: Colors.black, size: 20),
                                   ),
                                 ),
                                 Padding(
@@ -85,52 +77,49 @@ class AddBulkMilkScreen extends StatelessWidget {
                                     width: MediaQuery.of(context).size.width,
                                     child: Column(
                                       children: [
-                                        Obx(() => DropdownButtonFormField<String>(
-                                          value: controller.selectedCowId.value == 'Cow ID' ? null : controller.selectedCowId.value,
-                                          isExpanded: true,
-                                          decoration: InputDecoration(
-                                            hintText: 'Cow ID',
-                                            labelText: 'Cow ID',
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(10),
+                                        Obx(
+                                          () => Form(
+                                            key: controller.cowIdKey,
+                                            child: DropdownButtonFormField<String>(
+                                              value: controller.selectedCowId.value == 'Cow ID' ? null : controller.selectedCowId.value,
+                                              isExpanded: true,
+                                              decoration: InputDecoration(
+                                                hintText: 'Cow ID',
+                                                labelText: 'Cow ID',
+                                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                              ),
+                                              items: addCowScreenController.milkController.cowList.map((data) {
+                                                return DropdownMenuItem<String>(
+                                                  value: '${data.tagId} : ${data.calfName}',
+                                                  child: Text(
+                                                    '${data.tagId} : ${data.calfName}',
+                                                    style: const TextStyle(fontSize: 16, fontFamily: 'Outfit'),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                controller.selectedCowId.value = newValue ?? 'Cow ID';
+                                              },
+                                              validator: (value) {
+                                                if (value == null || value.isEmpty) {
+                                                  return 'Please Enter Cow ID';
+                                                }
+                                                return null;
+                                              },
                                             ),
                                           ),
-                                          items: addCowScreenController.milkController.cowList.map((data) {
-                                            return DropdownMenuItem<String>(
-                                              value: '${data.tagId} : ${data.calfName}',
-                                              child: Text('${data.tagId} : ${data.calfName}',
-                                                style: const TextStyle(fontSize: 16, fontFamily: 'Outfit'),
-                                              ),
-                                            );
-                                          }).toList(),
-                                          onChanged: (String? newValue) {
-                                            controller.selectedCowId.value = newValue ?? 'Cow ID';
-                                          },
-                                          validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return 'Please Enter Cow ID';
-                                            }
-                                            return null;
-                                          },
-                                        )),
+                                        ),
                                         Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 10, left: 0, right: 10),
+                                          padding: const EdgeInsets.only(top: 10, left: 0, right: 10),
                                           child: Row(
                                             children: [
                                               Text(
                                                 'Date : ',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: ColorConstant
-                                                      .blueGray9007f,
-                                                  fontSize: 17,
-                                                ),
+                                                style: TextStyle(fontWeight: FontWeight.bold, color: ColorConstant.blueGray9007f, fontSize: 17),
                                               ),
                                               const Spacer(),
                                               TimePickerSpinnerPopUp(
-                                                mode: CupertinoDatePickerMode
-                                                    .date,
+                                                mode: CupertinoDatePickerMode.date,
                                                 initTime: DateTime.now(),
                                                 maxTime: DateTime.now().add(const Duration(days: 10)),
                                                 barrierColor: Colors.black12,
@@ -147,34 +136,35 @@ class AddBulkMilkScreen extends StatelessWidget {
                                             ],
                                           ),
                                         ),
-                                        Obx(() => DropdownButtonFormField<String>(
-                                          value: controller.selectedTime.value == 'Time' ? null : controller.selectedTime.value,
-                                          isExpanded: true,
-                                          decoration: InputDecoration(
-                                            hintText: 'Time',
-                                            labelText: 'Time',
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(10),
+                                        Obx(
+                                          () => Form(
+                                            key: controller.timeKey,
+                                            child: DropdownButtonFormField<String>(
+                                              value: controller.selectedTime.value == 'Time' ? null : controller.selectedTime.value,
+                                              isExpanded: true,
+                                              decoration: InputDecoration(
+                                                hintText: 'Time',
+                                                labelText: 'Time',
+                                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                              ),
+                                              items: const ['morning', 'evening'].map((String val) {
+                                                return DropdownMenuItem<String>(
+                                                  value: val,
+                                                  child: Text(val, style: const TextStyle(fontSize: 16, fontFamily: 'Outfit')),
+                                                );
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                controller.selectedTime.value = newValue ?? 'Time';
+                                              },
+                                              validator: (value) {
+                                                if (value == null || value.isEmpty) {
+                                                  return 'Please Enter time';
+                                                }
+                                                return null;
+                                              },
                                             ),
                                           ),
-                                          items: const ['morning', 'evening'].map((String val) {
-                                            return DropdownMenuItem<String>(
-                                              value: val,
-                                              child: Text(val,
-                                                style: const TextStyle(fontSize: 16, fontFamily: 'Outfit'),
-                                              ),
-                                            );
-                                          }).toList(),
-                                          onChanged: (String? newValue) {
-                                            controller.selectedTime.value = newValue ?? 'Time';
-                                          },
-                                          validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return 'Please Enter time';
-                                            }
-                                            return null;
-                                          },
-                                        )),
+                                        ),
                                         CustomTextFormField(
                                           globalKey: controller.literKey,
                                           controller: controller.LiterController,
@@ -188,35 +178,32 @@ class AddBulkMilkScreen extends StatelessWidget {
                                             return null;
                                           },
                                         ),
-                                        Obx(() => Padding(
-                                          padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-                                          child: DropdownButtonFormField<EmployeeData>(
-                                            value: controller.selectedEmployee.value,
-                                            isExpanded: true,
-                                            decoration: InputDecoration(
-                                              hintText: "Select Employee".tr,
-                                              labelText: "Select Employee".tr,
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10),
+                                        Obx(
+                                          () => Padding(
+                                            padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+                                            child: DropdownButtonFormField<EmployeeData>(
+                                              value: controller.selectedEmployee.value,
+                                              isExpanded: true,
+                                              decoration: InputDecoration(
+                                                hintText: "Select Employee".tr,
+                                                labelText: "Select Employee".tr,
+                                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                               ),
-                                            ),
-                                            items: controller.employeeList.map((EmployeeData emp) {
-                                              return DropdownMenuItem<EmployeeData>(
-                                                value: emp,
-                                                child: Text(
-                                                  "${emp.empId} - ${emp.payrollName}",
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontFamily: 'Outfit',
+                                              items: controller.employeeList.map((EmployeeData emp) {
+                                                return DropdownMenuItem<EmployeeData>(
+                                                  value: emp,
+                                                  child: Text(
+                                                    "${emp.empId} - ${emp.payrollName}",
+                                                    style: const TextStyle(fontSize: 16, fontFamily: 'Outfit'),
                                                   ),
-                                                ),
-                                              );
-                                            }).toList(),
-                                            onChanged: (EmployeeData? newValue) {
-                                              controller.selectedEmployee.value = newValue;
-                                            },
+                                                );
+                                              }).toList(),
+                                              onChanged: (EmployeeData? newValue) {
+                                                controller.selectedEmployee.value = newValue;
+                                              },
+                                            ),
                                           ),
-                                        )),
+                                        ),
                                         Padding(
                                           padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
                                           child: TextFormField(
@@ -224,9 +211,7 @@ class AddBulkMilkScreen extends StatelessWidget {
                                             decoration: InputDecoration(
                                               hintText: "Enter Remarks".tr,
                                               labelText: "Remarks".tr,
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(10),
-                                              ),
+                                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                             ),
                                           ),
                                         ),
@@ -239,18 +224,15 @@ class AddBulkMilkScreen extends StatelessWidget {
                                             textStyle: const TextStyle(color: Colors.white, fontSize: 20),
                                             variant: ButtonVariant.FillGreen600b2,
                                             onTap: () {
-                                              if (controller.cowIdKey.currentState!.validate() &&
-                                                  controller.timeKey.currentState!.validate() &&
-                                                  controller.literKey.currentState!.validate()) {
+                                              if ((controller.cowIdKey.currentState?.validate() ?? false) &&
+                                                  (controller.timeKey.currentState?.validate() ?? false) &&
+                                                  (controller.literKey.currentState?.validate() ?? false)) {
                                                 controller.ValidateMilk(context);
-                                                Future.delayed(
-                                                  const Duration(milliseconds: 400),
-                                                  () {
-                                                    controller.selectedTime.value = 'Time';
-                                                  },
-                                                );
+                                                Future.delayed(const Duration(milliseconds: 400), () {
+                                                  controller.selectedTime.value = 'Time';
+                                                });
+                                                Get.back();
                                               }
-                                              Get.back();
                                             },
                                           ),
                                         ),
@@ -284,12 +266,9 @@ class AddBulkMilkScreen extends StatelessWidget {
                       itemCount: controller.BulkMilk.length,
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.only(
-                              top: 10, left: 10, right: 10),
+                          padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
                           child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.green.shade100,
-                                borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: Colors.green.shade100, borderRadius: BorderRadius.circular(8)),
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: Column(
@@ -304,14 +283,12 @@ class AddBulkMilkScreen extends StatelessWidget {
                                       child: const CircleAvatar(
                                         backgroundColor: Colors.black26,
                                         radius: 10,
-                                        child: Icon(Icons.close,
-                                            color: Colors.black, size: 15),
+                                        child: Icon(Icons.close, color: Colors.black, size: 15),
                                       ),
                                     ),
                                   ),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: CattleRichText(
@@ -336,8 +313,7 @@ class AddBulkMilkScreen extends StatelessWidget {
                                     ],
                                   ),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: CattleRichText(
