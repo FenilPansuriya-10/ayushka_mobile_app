@@ -18,11 +18,19 @@ class CowsScreenController extends GetxController {
   final isSearching = false.obs;
   Timer? _debounceTimer;
 
+  String? selectedShedId;
+
   MilkController milkController = Get.find<MilkController>();
 
   @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments;
+    if (args is Map && args.containsKey('shedId')) {
+      selectedShedId = args['shedId']?.toString();
+    } else if (args is List<Datum> && args.isNotEmpty) {
+      selectedShedId = args.first.shedId;
+    }
     // Fetch data when controller is initialized
     getData();
   }
@@ -35,22 +43,37 @@ class CowsScreenController extends GetxController {
   }
 
   Future<void> getData() async {
-    // Schedule status change after the current frame to avoid triggering setState during build
-    WidgetsBinding.instance.addPostFrameCallback((_) => milkController.changeStatus(DataStatusE.loading));
-    if (moduleEnum == ModuleEnum.shedCountingScreen) {
-      originalCowList.assignAll(List<Datum>.from(await Get.arguments));
-    } else {
-      originalCowList.assignAll(List<Datum>.from(milkController.cowList));
-    }
-    _sortCows(originalCowList);
+    try {
+      if (milkController.cowList.isEmpty) {
+        await milkController.cmCowList();
+      }
+      if (moduleEnum == ModuleEnum.shedCountingScreen && selectedShedId != null) {
+        final filteredFromMilkController = milkController.cowList
+            .where((cow) => cow.shedId == selectedShedId)
+            .toList();
+        if (filteredFromMilkController.isNotEmpty || milkController.cowList.isNotEmpty) {
+          originalCowList.assignAll(filteredFromMilkController);
+        } else {
+          final args = Get.arguments;
+          if (args is Map && args['cowList'] is List<Datum>) {
+            originalCowList.assignAll(args['cowList'] as List<Datum>);
+          } else if (args is List<Datum>) {
+            originalCowList.assignAll(args);
+          }
+        }
+      } else {
+        originalCowList.assignAll(List<Datum>.from(milkController.cowList));
+      }
+      _sortCows(originalCowList);
 
-    if (moduleEnum == ModuleEnum.cowsScreen) {
-      _loadCowsForPage(currentPage.value);
-    } else {
-      filteredCowList.assignAll(originalCowList);
+      if (moduleEnum == ModuleEnum.cowsScreen) {
+        _loadCowsForPage(currentPage.value);
+      } else {
+        filteredCowList.assignAll(originalCowList);
+      }
+    } catch (e) {
+      print("Error in CowsScreenController.getData(): $e");
     }
-    // Schedule status change after data is loaded
-  WidgetsBinding.instance.addPostFrameCallback((_) => milkController.changeStatus(DataStatusE.done));
   }
 
   void onSearchTextChanged(String newText) {

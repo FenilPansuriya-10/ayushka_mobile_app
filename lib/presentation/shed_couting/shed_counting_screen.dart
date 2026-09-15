@@ -128,7 +128,7 @@ class ShedCounting extends GetView<ShedCountingController> {
       onTap: () {
         moduleEnum = ModuleEnum.shedCountingScreen;
         print(cattleCounts);
-        Get.toNamed(AppRoutes.cowsScreen, arguments: cowList);
+        Get.toNamed(AppRoutes.cowsScreen, arguments: {'shedId': shedId, 'cowList': cowList});
       },
       child: Padding(
         padding: const EdgeInsets.only(top: 10, left: 10, right: 10),

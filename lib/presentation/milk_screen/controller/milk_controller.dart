@@ -186,62 +186,71 @@ class MilkController extends GetxController {
   }
 
   Future<void> cmCowList() async {
-    // try {
-    final Response response = await WebService.cmPostWithTokenRequest(url: ApiClient.cowListUrl, body: "", token: PrefUtils.getToken.toString());
+    changeStatus(DataStatusE.loading);
+    try {
+      final Response response = await WebService.cmPostWithTokenRequest(
+        url: ApiClient.cowListUrl,
+        body: "",
+        token: PrefUtils.getToken.toString(),
+      );
 
-    var data = jsonDecode(response.data);
+      var data = jsonDecode(response.data);
 
-    if (response.statusCode == 200 && data['data'] != null) {
-      cowListRes = cowListResFromJson(response.data);
-      if (cowListRes!.status.toString() == "SUCCESS") {
-        cowData = cowListRes!.data;
-        cowList = cowData!.data;
-        for (var tagId in cowList) {
-          if (tagId.tagId != "NA") {
-            isNaObjAdded = false;
+      if (response.statusCode == 200 && data['data'] != null) {
+        cowListRes = cowListResFromJson(response.data);
+        if (cowListRes!.status.toString() == "SUCCESS") {
+          cowData = cowListRes!.data;
+          cowList = cowData!.data;
+          for (var tagId in cowList) {
+            if (tagId.tagId != "NA") {
+              isNaObjAdded = false;
+            }
           }
-        }
-        if (isNaObjAdded == false) {
-          cowList.add(Datum(breed: 'NA', type: "NA", shedId: "NA", tagId: "NA", calfName: "NA", id: "NA", isFemale: false));
-          isNaObjAdded = true;
-        }
-        cowList.sort((a, b) {
-          final idA = a.tagId;
-          final idB = b.tagId;
-          final intA = int.tryParse(idA) ?? double.infinity;
-          final intB = int.tryParse(idB) ?? double.infinity;
-
-          if (intA != double.infinity && intB != double.infinity) {
-            return intA.compareTo(intB);
-          } else if (intA == double.infinity && intB == double.infinity) {
-            return idA.compareTo(idB);
-          } else {
-            return intA == double.infinity ? 1 : -1; // One is int and the other is string
+          if (isNaObjAdded == false) {
+            cowList.add(Datum(breed: 'NA', type: "NA", shedId: "NA", tagId: "NA", calfName: "NA", id: "NA", isFemale: false));
+            isNaObjAdded = true;
           }
-        });
-        changeStatus(DataStatusE.done);
-        CattleToast.msg(cowListRes!.message);
+          cowList.sort((a, b) {
+            final idA = a.tagId;
+            final idB = b.tagId;
+            final intA = int.tryParse(idA) ?? double.infinity;
+            final intB = int.tryParse(idB) ?? double.infinity;
+
+            if (intA != double.infinity && intB != double.infinity) {
+              return intA.compareTo(intB);
+            } else if (intA == double.infinity && intB == double.infinity) {
+              return idA.compareTo(idB);
+            } else {
+              return intA == double.infinity ? 1 : -1;
+            }
+          });
+          changeStatus(DataStatusE.done);
+          CattleToast.msg(cowListRes!.message);
+        } else {
+          print("****************status**************************");
+          print(cowListRes?.status);
+          if (cowListRes?.status != null) {
+            CattleToast.msg(cowListRes!.status);
+          }
+          print("****************status**************************");
+          changeStatus(DataStatusE.error);
+        }
       } else {
-        print("****************status**************************");
-        print(cowListRes!.status);
-        CattleToast.msg(cowListRes!.status);
-        print("****************status**************************");
+        print("*******************statusCode***********************");
+        print(response.statusCode);
+        if (response.statusMessage != null && response.statusMessage!.isNotEmpty) {
+          CattleToast.msg(response.statusMessage!);
+        }
+        print("*******************statusCode***********************");
         changeStatus(DataStatusE.error);
       }
-    } else {
-      print("*******************statusCode***********************");
-      print(response.statusCode);
-      CattleToast.msg(response.statusMessage!);
-      print("*******************statusCode***********************");
+    } catch (error) {
+      print("******************Catch**ERROR**********************");
+      print(error.toString());
+      CattleToast.msg(error.toString());
+      print("********************ERROR**********************");
       changeStatus(DataStatusE.error);
     }
-    // } catch (error) {
-    //   print("******************Catch**ERROR**********************");
-    //   print(error.toString());
-    //   CattleToast.msg(error.toString());
-    //   print("********************ERROR**********************");
-    //   changeStatus(DataStatusE.error);
-    // }
     return;
   }
 

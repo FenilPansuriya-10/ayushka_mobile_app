@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:cattle_app/presentation/common%20file/defaultVariablesList.dart';
-import 'package:cattle_app/presentation/cow_screen/cow_details/model/edit_Cow_Details_models/edit_cow_details_request.dart';
+import 'package:cattle_app/presentation/cow_screen/cow_details/model/edit_cow_details_models/edit_cow_details_request.dart';
 import 'package:cattle_app/presentation/cow_screen/cow_details/model/edit_cow_details_models/edit_cow_details_response.dart';
 import 'package:cattle_app/presentation/milk_screen/controller/milk_controller.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +58,9 @@ class CowsDetailScreenController extends GetxController {
 
   int index = 0;
 
-  FoundCow? foundCow;
+  Rxn<FoundCow> foundCowObs = Rxn<FoundCow>();
+  FoundCow? get foundCow => foundCowObs.value;
+  set foundCow(FoundCow? val) => foundCowObs.value = val;
 
   RxDouble totalMilk = 0.0.obs;
   RxDouble lastYearTotalMilk = 0.0.obs;
@@ -69,11 +71,18 @@ class CowsDetailScreenController extends GetxController {
   @override
   void onInit() {
     retrieveCowData();
-    CowsDetail(id: argument['tagId'].toString());
-    MilkInfoDetail(id: argument['tagId'].toString());
-    medicineData(id: argument['tagId'].toString());
-    cowHierarchyApi(cowId: argument['tagId'].toString());
+    refreshAllCowDetails();
     super.onInit();
+  }
+
+  Future<void> refreshAllCowDetails({String? cowId}) async {
+    final targetId = cowId ?? argument['tagId'].toString();
+    _changeStatus(DataStatus.loading);
+    await CowsDetail(id: targetId);
+    await MilkInfoDetail(id: targetId);
+    await medicineData(id: targetId);
+    await cowHierarchyApi(cowId: targetId);
+    _changeStatus(DataStatus.done);
   }
 
   Map<String, dynamic> args = Get.arguments;
@@ -300,18 +309,22 @@ class CowsDetailScreenController extends GetxController {
             sairID: extractId(sairIdController.text),
             type: cowTypeController.text,
             sendDiedDate: sendDiedDateController.text,
+            shedId: newShedIdController.text,
+            calfWeight: double.tryParse(cowWeightController.text) ?? 0.0,
           ),
         ),
         token: PrefUtils.getToken.toString(),
       );
       if (response.statusCode == 200) {
         EditCowDetailsResponse editCowDetailsResponse =
-            await editCowDetailsResponseFromJson(response.data);
+            editCowDetailsResponseFromJson(response.data);
         await milkController.cmCowList();
         if (Get.isRegistered<CowsScreenController>()) {
-          Get.find<CowsScreenController>().getData();
+          await Get.find<CowsScreenController>().getData();
         }
-        Get.back();
+        final updatedTagId = calfIDController.text;
+        argument['tagId'] = updatedTagId;
+        await refreshAllCowDetails(cowId: updatedTagId);
         Get.back();
         CattleToast.msg(editCowDetailsResponse.message);
         print(response.statusCode);

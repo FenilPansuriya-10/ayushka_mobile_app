@@ -64,25 +64,28 @@ class MilkItemWidget extends StatelessWidget {
               Spacer(),
               Image(
                 image: AssetImage(
-                  type == "Died"
+                  type.toLowerCase() == "died"
                       ? 'assets/images/cow-death-icon .png'
-                      : type == "Donate"
+                      : type.toLowerCase() == "donate"
                           ? 'assets/images/donate.png'
                           : variant == true
                               ? 'assets/images/gircow-r 1.png'
                               : 'assets/images/bullIcon.png',
                 ),
-                height: type == "Died"
+                height: type.toLowerCase() == "died"
                     ? 41
-                    : type == "Donate"
+                    : type.toLowerCase() == "donate"
                         ? 40
                         : variant == true
                             ? 35
                             : 40,
               ),
               SizedBox(
-                width: type == "Died"
-                    ? 10:type == "Donate"||variant == false?5:0,
+                width: type.toLowerCase() == "died"
+                    ? 10
+                    : type.toLowerCase() == "donate" || variant == false
+                        ? 5
+                        : 0,
               ),
             ],
           ),
